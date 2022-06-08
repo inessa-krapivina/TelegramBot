@@ -83,13 +83,17 @@ def info(message):
     statement = select(User).where(User.id == message.chat.id)
     results = session.exec(statement)
     user = results.first()
-    bot.send_message(message.chat.id, f'Я пробил информацию:\n'
+    if user:
+        bot.send_message(message.chat.id, f'Я пробил информацию:\n'
                                       f'\nТы милашечка!\n'
                                       f'Id пользователя: {message.from_user.id}'
                                       f'\nИмя: {message.chat.first_name}'
                                       f'\nНик: {message.chat.username}'
                                       f'\nПоследняя цитата: {user.date}',
                      reply_markup=start_keyboard)
+    else:
+        bot.send_message(message.chat.id, f'Сначала введите /start :)')
+
 
 
 @bot.callback_query_handler(func=lambda c:c.data)
