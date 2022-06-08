@@ -21,6 +21,7 @@ button_get_lesson2 = types.InlineKeyboardButton(text='Получить инфо�
 start_keyboard.add(button_get_lesson1)
 start_keyboard.add(button_get_lesson2)
 
+
 def send_lesson(message):
     print('Идём за цитатой')
     response = requests.get('https://finewords.ru/sluchajnaya?_=1652723055484')
@@ -73,16 +74,15 @@ def info(message):
     statement = select(User).where(User.id == message.chat.id)
     results = session.exec(statement)
     user = results.first()
-    if user:
-        bot.send_message(message.chat.id, f'Я пробил информацию:\n'
+    if not user:
+        add_user_in_db(message)
+    bot.send_message(message.chat.id, f'Я пробил информацию:\n'
                                       f'\nТы милашечка!\n'
-                                      f'Id пользователя: {message.from_user.id}'
-                                      f'\nИмя: {message.chat.first_name}'
-                                      f'\nНик: {message.chat.username}'
+                                      f'Id пользователя: {user.id}'
+                                      f'\nИмя: {user.first_name}'
+                                      f'\nНик: {user.username}'
                                       f'\nПоследняя цитата: {user.date}',
                      reply_markup=start_keyboard)
-    else:
-        add_user_in_db(message)
 
 
 @bot.callback_query_handler(func=lambda c:c.data)
