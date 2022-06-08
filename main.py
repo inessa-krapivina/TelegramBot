@@ -111,9 +111,8 @@ def add_user_in_db(message) -> Optional[User]:
             session.add(user1)
             session.commit()
 
-            user_in_db = None
-            session.refresh(user_in_db)
-            return user_in_db
+            session.refresh(user1)
+            return user1
 
 
 bot.polling()
