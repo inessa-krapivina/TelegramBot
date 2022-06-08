@@ -98,14 +98,14 @@ def answer_callback(callback):
 
 def add_user_in_db(message) -> Optional[User]:
     with Session(engine) as session:
-        statement = select(User).where(User.id == message.user.id)
+        statement = select(User).where(User.id == message.from_user.id)
         users = session.exec(statement).all()
         print(users)
         if not len(users):
             user1 = User(
-                id=message.user.id,
-                first_name=message.user.first_name,
-                username=f'{message.user.id} - {message.user.username}',
+                id=message.from_user.id,
+                first_name=message.from_user.first_name,
+                username=f'{message.from_user.id} - {message.from_user.username}',
                 date=str(datetime.now())
             )
             session.add(user1)
