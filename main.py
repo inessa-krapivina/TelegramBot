@@ -54,30 +54,20 @@ with Session(engine) as session:
 @bot.message_handler(commands=['start'])
 def start(message):
     send_lesson(message)
-
-    with Session(engine) as session:
-        statement = select(User).where(User.id == message.chat.id)
-        users = session.exec(statement).all()
-        print(users)
-        if not len(users):
-            user1 = User(
-                id=message.chat.id,
-                first_name=message.chat.first_name,
-                username=f'{message.chat.id} - {message.chat.username}',
-                date=str(datetime.now())
-            )
-            session.add(user1)
-            session.commit()
+    add_user_in_db(message)
 
 
 def update_users(message):
     with Session(engine) as session:
         statement = select(User).where(User.id == message.chat.id)
         user_in_db = session.exec(statement).first()
+        if user_in_db:
+            user_in_db.date = str(datetime.now())
+            session.add(user_in_db)
+            session.commit()
+        else:
+            add_user_in_db(message)
 
-        user_in_db.date = str(datetime.now())
-        session.add(user_in_db)
-        session.commit()
 
 def info(message):
     statement = select(User).where(User.id == message.chat.id)
@@ -92,8 +82,7 @@ def info(message):
                                       f'\nПоследняя цитата: {user.date}',
                      reply_markup=start_keyboard)
     else:
-        bot.send_message(message.chat.id, f'Сначала введите /start :)')
-
+        add_user_in_db(message)
 
 
 @bot.callback_query_handler(func=lambda c:c.data)
@@ -105,5 +94,20 @@ def answer_callback(callback):
     elif callback.data == 'button_get_lesson2':
         info(callback.message)
 
+
+def add_user_in_db(message):
+    with Session(engine) as session:
+        statement = select(User).where(User.id == message.chat.id)
+        users = session.exec(statement).all()
+        print(users)
+        if not len(users):
+            user1 = User(
+                id=message.chat.id,
+                first_name=message.chat.first_name,
+                username=f'{message.chat.id} - {message.chat.username}',
+                date=str(datetime.now())
+            )
+            session.add(user1)
+            session.commit()
 
 bot.polling()
