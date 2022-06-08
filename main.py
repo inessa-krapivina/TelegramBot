@@ -8,7 +8,7 @@ from datetime import datetime
 
 
 # Авторизация бота:
-bot = telebot.TeleBot('5105850661:AAH4qB5Tt7gv9C-adfeLTSInvqThEUwVK_k')
+bot = telebot.TeleBot('5105850661:AAH4qB5Tt7gv9C-adfeLTSInvqThEUwVK_k', threaded=False)
 print('Бот создался')
 
 
@@ -97,15 +97,16 @@ def answer_callback(callback):
 
 
 def add_user_in_db(message) -> Optional[User]:
+    print('message.chat = ', message.chat)
     with Session(engine) as session:
-        statement = select(User).where(User.id == message.from_user.id)
+        statement = select(User).where(User.id == message.chat.id)
         users = session.exec(statement).all()
         print(users)
         if not len(users):
             user1 = User(
-                id=message.from_user.id,
-                first_name=message.from_user.first_name,
-                username=f'{message.from_user.id} - {message.from_user.username}',
+                id=message.chat.id,
+                first_name=message.chat.first_name,
+                username=f'{message.chat.id} - {message.chat.username}',
                 date=str(datetime.now())
             )
             session.add(user1)
