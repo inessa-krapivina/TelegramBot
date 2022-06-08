@@ -75,7 +75,8 @@ def info(message):
     results = session.exec(statement)
     user = results.first()
     if not user:
-        add_user_in_db(message)
+        user = add_user_in_db(message)
+
     bot.send_message(message.chat.id, f'Я пробил информацию:\n'
                                       f'\nТы милашечка!\n'
                                       f'Id пользователя: {user.id}'
@@ -95,7 +96,7 @@ def answer_callback(callback):
         info(callback.message)
 
 
-def add_user_in_db(message):
+def add_user_in_db(message) -> Optional[User]:
     with Session(engine) as session:
         statement = select(User).where(User.id == message.chat.id)
         users = session.exec(statement).all()
@@ -109,5 +110,10 @@ def add_user_in_db(message):
             )
             session.add(user1)
             session.commit()
+
+            user_in_db = None
+            session.refresh(user_in_db)
+            return user_in_db
+
 
 bot.polling()
